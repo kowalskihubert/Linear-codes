@@ -2,8 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numpy.random
 
-numpy.random.seed(2023)
+np.random.seed(2023)
+np.set_printoptions(linewidth=500, threshold=3000)
 
+# Zadanie 8
+print("Zadanie 8")
 # a)
 print("A")
 matrix = np.random.randint(0, 5, (4, 10))
@@ -17,7 +20,7 @@ matrix_normed = matrix / 4
 
 print(matrix_normed)
 plt.imshow(matrix_normed, cmap='hot', interpolation='nearest')
-plt.show()
+#plt.show()
 
 # c)
 print()
@@ -162,6 +165,67 @@ new_matrix_normed = new_matrix / 4
 
 print(new_matrix_normed)
 plt.imshow(new_matrix_normed, cmap='hot', interpolation='nearest')
-plt.show()
+#plt.show()
 
 
+# Zadanie 6
+print()
+print("Zadanie 6")
+
+def addVectors_mod7(vec1, vec2, vec3):
+    assert(len(vec1) == len(vec2) == len(vec3))
+    wynik = [0]*len(vec1)
+    for i in range(len(vec1)):
+        wynik[i] = (vec1[i] + vec2[i] + vec3[i]) % 7
+    return wynik
+
+def generate_all_vectors():
+    b1 = np.array([1,0,0,2,4])
+    b2 = np.array([0,1,0,1,0])
+    b3 = np.array([0,0,1,5,6])
+    # Wszystkie słowa kodowe są postaci a*b1 + b*b2 + c*b3
+    # gdzie a,b,c należą do ciała Z7
+    C = []
+    for a in range(7):
+        for b in range(7):
+            for c in range(7):
+                C.append(addVectors_mod7(a*b1, b*b2, c*b3))
+    return C
+
+
+C = np.array(generate_all_vectors()).T
+print(C[:, 0:50]) # Pierwsze 50 słów kodowych, 343 w sumie
+
+# Zadanie 7
+print()
+print("Zadanie 7")
+G2 = np.array([[1,0,0,2,4],[0,1,0,1,0],[0,0,1,5,6]])
+v = np.array([1,2,3,4,5])
+C = generate_all_vectors()
+
+def find_coordinates_in_basis_z7(v, B): # brute force
+    # B - baza 3-wymiarowa
+    field = [0,1,2,3,4,5,6]
+    for a in field:
+        for b in field:
+            for c in field:
+                u = (a * B[0] + b * B[1] + c * B[2]) % 7
+                if np.array_equal(u, v):
+                    return [a, b, c]
+    return None
+def minimize_hamming_distance_z7(C, G, v):
+    B = []
+    for i in G:
+        B.append(i)
+    min_dist = hamming_distance(min(C, key = lambda x: hamming_distance(x, v)), v)
+    L = []
+    for u in C:
+        if hamming_distance(u, v) == min_dist:
+            L.append(u)
+    ind = np.random.randint(0, len(L))
+    w = L[ind]
+    return find_coordinates_in_basis_z7(w, B)
+
+
+print(minimize_hamming_distance_z7(C,  G2, v))
+#print((1*G2[0] + 0*G2[1] + 6*G2[2])%7) # sprawdzenie
